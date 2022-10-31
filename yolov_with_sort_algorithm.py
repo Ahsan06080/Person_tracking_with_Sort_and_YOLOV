@@ -361,17 +361,23 @@ color = [[0,0,255],[255,0,0],[70,180,120],[255,255,0],[0,255,255],[255,0,255],[1
 
 
 
-
-mot_tracker = Sort(max_age =30, min_hits= 0)
-
-
-# fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
-# video=cv2.VideoWriter('out.avi',cv2.VideoWriter_fourcc('M','J','P','G'),20, (1080,1920))
 vs = cv2.VideoCapture('video.mp4')
 fps = None
+mot_tracker = Sort(max_age =30, min_hits= 0)
+frame_width = int(vs.get(3))
+frame_height = int(vs.get(4))
+frame_size = (frame_width,frame_height)
+fps = 30
+video = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 20, frame_size)
+
+# width  = vs.get(cv2.CAP_PROP_FRAME_WIDTH)   # float `width`
+# height = vs.get(cv2.CAP_PROP_FRAME_HEIGHT) 
+# fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
+# video=cv2.VideoWriter('out.avi',cv2.VideoWriter_fourcc('M','J','P','G'),20, (width,height))
+
 pause = 0 
 trajectories = {}
-# initBB = None
+initBB = None
 while True:
   _,frame = vs.read()
   # print(frame)
@@ -467,21 +473,21 @@ while True:
   # PIL.Image.fromarray(img_ori)
   cv2.imshow("Frame", frame)
   key = cv2.waitKey(1) #& 0xFF
-  # if key == ord("s") or key == ord('S'):
-		# # select the bounding box of the object we want to track (make
-  #       initBB = cv2.selectROI("Frame", frame, fromCenter=False,
-  #              showCrosshair=True)
-  # else :
-  #   trackers = mot_tracker.update(np.array(box))
-  # if initBB is not None:
-  # 	# print(box)
-  # 	# print(initBB)
-  #   iou_ = iou((initBB[0],initBB[1],initBB[0]+initBB[2],initBB[1]+initBB[3]),box[0])
-  #   if iou_ != 0 :
-  #     video.write(frame)
+  if key == ord("s") or key == ord('S'):
+		# select the bounding box of the object we want to track (make
+        initBB = cv2.selectROI("Frame", frame, fromCenter=False,
+               showCrosshair=True)
+  else :
+    trackers = mot_tracker.update(np.array(box))
+  if initBB is not None:
+  	# print(box)
+  	# print(initBB)
+    iou_ = iou((initBB[0],initBB[1],initBB[0]+initBB[2],initBB[1]+initBB[3]),box[0])
+    if iou_ != 0 :
+      video.write(frame)
       
-  #     print('person_detected')
-  #     del(frame)
+      print('person_detected')
+      del(frame)
 cv2.destroyAllWindows()
-# video.release()
+video.release()
 print("Done")
